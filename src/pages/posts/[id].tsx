@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import { ReactElement } from 'react'
 
 import { getAllPostIds, getPostData } from '../../lib/posts'
 
@@ -11,9 +12,10 @@ interface PostProps {
   }
 }
 
-export default function PostData({ post }: PostProps) {
+export default function PostData({ post }: PostProps): ReactElement {
   const router = useRouter()
 
+  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   if (router.isFallback || !post) {
     return <div>Loading...</div>
   }
@@ -28,7 +30,12 @@ export default function PostData({ post }: PostProps) {
   )
 }
 
-export async function getStaticPaths() {
+interface StaticPathsResponse {
+  fallback: boolean
+  paths: any
+}
+
+export async function getStaticPaths(): Promise<StaticPathsResponse> {
   const paths = await getAllPostIds()
 
   return {
@@ -43,8 +50,16 @@ interface GetPostProps {
   }
 }
 
-export async function getStaticProps({ params }: GetPostProps) {
+interface StaticPropsResponse {
+  props: any
+  revalidate: number
+}
+
+export async function getStaticProps({
+  params
+}: GetPostProps): Promise<StaticPropsResponse> {
   const post = await getPostData(params.id)
+
   return {
     props: {
       post
